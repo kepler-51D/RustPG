@@ -1,5 +1,7 @@
+use slotmap::DefaultKey;
+
 // use crate::base_render::Quad;
-use crate::{app_manager::mesh::Mesh, voxels::base_voxel::BlockID};
+use crate::{voxels::base_voxel::BlockID};
 
 pub const CHUNKSIZE: usize = 16;
 pub const CHUNKLEN: usize = CHUNKSIZE*CHUNKSIZE*CHUNKSIZE;
@@ -12,9 +14,9 @@ pub enum ChunkState {
     MeshDirty,
     Valid,
 }
-#[derive(Clone)]
+// #[derive(Clone,Copy)]
 pub struct Chunk {
-    pub mesh_cache: Mesh,
+    pub mesh_cache_index: DefaultKey,
     pub data: [BlockID; CHUNKLEN],
     pub state: ChunkState,
 }
@@ -22,9 +24,9 @@ pub struct Chunk {
 impl Default for Chunk {
     fn default() -> Self {
         return Self {
-            mesh_cache: Mesh::new(),
+            mesh_cache_index: DefaultKey::default(),
             data: [BlockID::Stone; CHUNKLEN],
-            state: ChunkState::MeshDirty, // this is bad fix fix fix
+            state: ChunkState::MeshDirty,
         }
     }
 }

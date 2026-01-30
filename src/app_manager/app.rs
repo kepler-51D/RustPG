@@ -7,10 +7,10 @@ use winit::{
     application::ApplicationHandler, event::{DeviceEvent, KeyEvent, WindowEvent}, event_loop::ActiveEventLoop, keyboard::PhysicalKey, window::Window
 };
 
-use crate::{app_manager::state::State, dual_contouring::world::RenderManager};
+use crate::{app_manager::state::State};
 
 pub struct App {
-    pub render_manager: RenderManager,
+    // pub render_manager: RenderManager,
     pub state: Option<State>,
     pub last_render_time: Instant,
 }
@@ -18,7 +18,7 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         Self {
-            render_manager: RenderManager::new(Vec3::ZERO, 10),
+            // render_manager: RenderManager::new(Vec3::ZERO, 10),
             state: None,
             last_render_time: instant::Instant::now(),
         }

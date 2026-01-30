@@ -2,7 +2,6 @@ use std::cmp::{min,max};
 use std::process;
 
 use glam::{UVec3, Vec3};
-use crate::app_manager::mesh::Mesh;
 use crate::app_manager::state::State;
 use crate::voxels::base_chunk::Chunk;
 use crate::voxels::chunk_cache::ChunkCacheManager;
@@ -72,24 +71,24 @@ impl WorldManager {
                     }
                     else {
                     }
-                    let mesh: &Mesh = &self.chunk_manager.get_chunk(index).unwrap().mesh_cache;
-                    println!("{}\n---------------",self.player.pos);
-                    for i in 0..mesh.vertices.len() {
-                        if length(mesh.vertices[i].to_vec3()-self.player.pos) < 1.0 {
+                    // let mesh: &Mesh = &self.chunk_manager.get_chunk(index).unwrap().mesh_cache;
+                    // println!("{}\n---------------",self.player.pos);
+                    // for i in 0..mesh.vertices.len() {
+                    //     if length(mesh.vertices[i].to_vec3()-self.player.pos) < 1.0 {
                             // println!("{} : {} {} {}",i,
                             //     mesh.vertices[i].pos[0],
                             //     mesh.vertices[i].pos[1],
                             //     mesh.vertices[i].pos[2],
                             // );
                             // println!("{}",mesh.vertices[i].to_vec3());
-                        }
+                        // }
                         // println!("{} {} {}",
                         //     mesh.vertices[i].pos[0],
                             // mesh.vertices[i].pos[1],
                         //     mesh.vertices[i].pos[2],
                         // );
-                        println!("{}",mesh.vertices[i].to_vec3());
-                    }
+                        // println!("{}",mesh.vertices[i].to_vec3());
+                    // }
                     self.chunk_manager.render_chunk(index,state);
                 }
             }

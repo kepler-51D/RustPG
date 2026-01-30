@@ -1,6 +1,8 @@
 use std::ops::{Range};
 use std::io::{BufReader, Cursor};
 use glam::{Vec2, Vec3};
+use wgpu::Device;
+use wgpu::util::BufferInitDescriptor;
 use wgpu::{util::DeviceExt};
 use crate::app_manager::mesh::load_string;
 use crate::{advanced_rendering::{render_vertex::Vertex, texture::Texture}};
@@ -59,7 +61,6 @@ pub struct Mesh {
     pub num_elements: u32,
     pub material: usize,
 }
-
 
 pub struct Model {
     pub meshes: Vec<Mesh>,

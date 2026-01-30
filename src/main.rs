@@ -1,9 +1,10 @@
 // #![allow(dead_code)]
 mod advanced_rendering;
 mod app_manager;
-// mod entities;
-// mod voxels;
-mod dual_contouring;
+mod entities;
+mod v3;
+mod voxels;
+// mod dual_contouring;
 
 use winit::event_loop::EventLoop;
 

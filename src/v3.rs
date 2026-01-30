@@ -1,7 +1,7 @@
 use std::f32;
 use glam::{UVec3, Vec3};
 
-use crate::{app_manager::mesh::Vertex, voxels::base_chunk::CHUNKSIZE};
+use crate::{advanced_rendering::render_vertex::Vertex, voxels::base_chunk::CHUNKSIZE};
 
 pub fn get_block_index(vec: UVec3) -> usize {
     return (vec.x*CHUNKSIZE as u32*CHUNKSIZE as u32 + vec.y*CHUNKSIZE as u32+vec.z) as usize;

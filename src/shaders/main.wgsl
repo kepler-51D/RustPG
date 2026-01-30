@@ -56,6 +56,9 @@ fn vs_main(
     let world_normal = normalize(normal_matrix * model.normal);
     let world_tangent = normalize(normal_matrix * model.tangent);
     let world_bitangent = normalize(normal_matrix * model.bitangent);
+    // let world_normal = (normal_matrix * model.normal);
+    // let world_tangent = (normal_matrix * model.tangent);
+    // let world_bitangent = (normal_matrix * model.bitangent);
     let tangent_matrix = transpose(mat3x3<f32>(
         world_tangent,
         world_bitangent,
