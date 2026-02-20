@@ -53,7 +53,6 @@ impl Material {
     }
 }
 
-
 pub struct Mesh {
     pub name: String,
     pub vertex_buffer: wgpu::Buffer,
@@ -61,7 +60,6 @@ pub struct Mesh {
     pub num_elements: u32,
     pub material: usize,
 }
-
 pub struct Model {
     pub meshes: Vec<Mesh>,
     pub materials: Vec<Material>,

@@ -1,4 +1,5 @@
-// #![allow(dead_code)]
+#![allow(dead_code)]
+#![allow(unused)]
 mod advanced_rendering;
 mod app_manager;
 mod entities;
@@ -19,5 +20,5 @@ pub fn run() -> anyhow::Result<()> {
     Ok(())
 }
 fn main() {
-    let _thingy = run().unwrap();
+    run().unwrap();
 }

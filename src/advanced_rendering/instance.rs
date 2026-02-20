@@ -1,7 +1,11 @@
+use bytemuck::NoUninit;
 use glam::{Mat3, Mat4, Quat, Vec3};
 
+#[repr(C)]
+#[derive(NoUninit,Copy,Clone)]
 pub struct Instance {
     pub rotation: Quat,
+    pub _padding: u32,
     pub position: Vec3,
 }
 impl Instance {

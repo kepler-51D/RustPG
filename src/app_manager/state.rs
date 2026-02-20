@@ -1,6 +1,7 @@
 use std::{f32::consts::PI, sync::Arc};
+use RustPG::vec_to_buffer;
 use glam::{Mat4, Quat, Vec3, Vec4};
-use wgpu::{RenderPipeline, util::DeviceExt};
+use wgpu::{BindGroupLayout, LoadOpDontCare, RenderPipeline, util::DeviceExt};
 use crate::{advanced_rendering::{instance::{Instance,InstanceRaw}, lighting::LightUniform, model::{DrawModel, Model}}, app_manager::{camera::CameraUniform, camera_controller::{CameraController}, render_pipeline::create_render_pipeline}};
 use winit::{
     event::{ElementState, KeyEvent, MouseButton, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{KeyCode, PhysicalKey}, window::Window
@@ -11,9 +12,9 @@ use crate::advanced_rendering::{render_vertex::Vertex,texture::Texture};
 const CAMERA_ROTATION_SPEED: f32 = 30.0;
 
 pub struct State {
-    instances: Vec<Instance>,
-    instance_buffer: wgpu::Buffer,
-    obj_model: Model,
+    pub instances: Vec<Instance>,
+    pub instance_buffer: wgpu::Buffer,
+    pub obj_model: Model,
 
     pub surface: wgpu::Surface<'static>,
     pub device: wgpu::Device,
@@ -30,12 +31,14 @@ pub struct State {
     pub cam: camera::Camera,
     pub camera_buffer: wgpu::Buffer,
     pub camera_uniform: CameraUniform,
-    depth_texture: Texture,
+    pub depth_texture: Texture,
 
-    light_uniform: LightUniform,
-    light_buffer: wgpu::Buffer,
-    light_bind_group: wgpu::BindGroup,
-    light_render_pipeline: RenderPipeline,
+    pub texture_bind_group_layout: BindGroupLayout,
+
+    pub light_uniform: LightUniform,
+    pub light_buffer: wgpu::Buffer,
+    pub light_bind_group: wgpu::BindGroup,
+    pub light_render_pipeline: RenderPipeline,
 }
 impl State {
     pub fn update(&mut self, dt: instant::Duration) {
@@ -265,7 +268,7 @@ impl State {
                 };
 
                 Instance {
-                    position, rotation,
+                    position,_padding:0, rotation,
                 }
             })
         }).collect::<Vec<_>>();
@@ -289,6 +292,7 @@ impl State {
         window.set_cursor_visible(false);
 
         Ok(Self {
+            texture_bind_group_layout,
             camera_buffer,
             camera_bind_group,
             camera_uniform,
@@ -360,7 +364,7 @@ impl State {
             _ => {}
         }
     }
-    pub fn render_model(&mut self, model: &Model, Instances: Vec<Instance>) -> Result<(), wgpu::SurfaceError> {
+    pub fn render_model(&mut self, model: &Model) -> Result<(), wgpu::SurfaceError> {
         self.window.request_redraw();
 
         if !self.is_surface_configured {
@@ -389,6 +393,7 @@ impl State {
                                     a: 0.0,
                                 }
                             ),
+                            // load: wgpu::LoadOp::DontCare(LoadOpDontCare::enabled()),
                             store: wgpu::StoreOp::Store,
                         },
                         depth_slice: None,
@@ -410,7 +415,14 @@ impl State {
             
             render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
 
-            render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+            // render_pass.set_vertex_buffer(1, vec_to_buffer(&vec![Instance {
+            //     position:Vec3::default(),
+            //     rotation: Quat::default(),
+            //     _padding: 0
+            // }], "veeee".into(), &self.device,wgpu::BufferUsages::VERTEX).slice(..));
+
+            render_pass.set_vertex_buffer(1, vec_to_buffer(&self.instances, "veeee".into(), &self.device,wgpu::BufferUsages::VERTEX).slice(..));
+
             use crate::advanced_rendering::lighting::DrawLight;
             render_pass.set_pipeline(&self.light_render_pipeline);
             render_pass.draw_light_model(
@@ -420,9 +432,8 @@ impl State {
             );
             render_pass.set_pipeline(&self.render_pipeline);
             
-            render_pass.draw_model_instanced(
+            render_pass.draw_model(
                 &model,
-                0..self.instances.len() as u32,
                 &self.camera_bind_group,
                 &self.light_bind_group,
             );

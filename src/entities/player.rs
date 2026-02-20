@@ -1,7 +1,5 @@
 use glam::{UVec3, Vec3};
 
-use crate::voxels::base_chunk::CHUNKSIZE;
-
 pub struct PlayerEntity {
    pub pos: Vec3,
    pub render_distance_hor: u32,
@@ -17,9 +15,9 @@ impl PlayerEntity {
    }
    pub fn get_chunk_pos(&self) -> UVec3 {
       UVec3 {
-         x: (self.pos.x/CHUNKSIZE as f32) as u32,
-         y: (self.pos.y/CHUNKSIZE as f32) as u32,
-         z: (self.pos.z/CHUNKSIZE as f32) as u32,
+         x: 0,
+         y: 0,
+         z: 0,
       }
    }
 }
