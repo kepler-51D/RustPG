@@ -8,11 +8,11 @@ use crate::voxels::{
     chunk_manager::ChunkManager,
 };
 
-pub const QUAD: [Vec3; 4] = [
+pub const QUAD: [Vec3; 4] = [ // by default is up quad
     Vec3::new(-0.5, 0.5, -0.5),
     Vec3::new(0.5, 0.5, -0.5),
-    Vec3::new(-0.5, 0.5, 0.5),
-    Vec3::new(0.5, 0.5, 0.5),
+    Vec3::new(-0.5, 0.5, 0.0),
+    Vec3::new(0.5, 0.5, 0.0),
 ];
 
 #[repr(u32)]

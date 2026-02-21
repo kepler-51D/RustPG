@@ -46,7 +46,7 @@ impl State {
         self.light_uniform.pos =
             (Quat::from_axis_angle((0.0, 1.0, 0.0).into(), 0.001)
                 * old_position)
-                .into();
+                ;
         self.queue.write_buffer(&self.light_buffer, 0, bytemuck::cast_slice(&[self.light_uniform]));
         self.camera_controller.update_camera(&mut self.cam, dt);
         self.camera_uniform.update_view_proj(&self.cam, &self.projection);
@@ -363,87 +363,6 @@ impl State {
             (KeyCode::Escape, true) => event_loop.exit(),
             _ => {}
         }
-    }
-    pub fn render_model(&mut self, model: &Model) -> Result<(), wgpu::SurfaceError> {
-        self.window.request_redraw();
-
-        if !self.is_surface_configured {
-            return Ok(());
-        }
-            
-        let output = self.surface.get_current_texture()?;
-        let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
-        });
-        {
-            // 1.
-            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
-                color_attachments: &[
-                    Some(wgpu::RenderPassColorAttachment {
-                        view: &view,
-                        resolve_target: None,
-                        ops: wgpu::Operations {
-                            load: wgpu::LoadOp::Clear(
-                                wgpu::Color {
-                                    r: 0.05,
-                                    g: 0.05,
-                                    b: 0.025,
-                                    a: 0.0,
-                                }
-                            ),
-                            // load: wgpu::LoadOp::DontCare(LoadOpDontCare::enabled()),
-                            store: wgpu::StoreOp::Store,
-                        },
-                        depth_slice: None,
-                    })
-                ],
-                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
-                    view: &self.depth_texture.view,
-                    depth_ops: Some(wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(1.0),
-                        store: wgpu::StoreOp::Store,
-                    }),
-                    stencil_ops: None,
-                }),
-                timestamp_writes: None,
-                occlusion_query_set: None,
-                multiview_mask: None,
-            });
-            
-            
-            render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
-
-            // render_pass.set_vertex_buffer(1, vec_to_buffer(&vec![Instance {
-            //     position:Vec3::default(),
-            //     rotation: Quat::default(),
-            //     _padding: 0
-            // }], "veeee".into(), &self.device,wgpu::BufferUsages::VERTEX).slice(..));
-
-            render_pass.set_vertex_buffer(1, vec_to_buffer(&self.instances, "veeee".into(), &self.device,wgpu::BufferUsages::VERTEX).slice(..));
-
-            use crate::advanced_rendering::lighting::DrawLight;
-            render_pass.set_pipeline(&self.light_render_pipeline);
-            render_pass.draw_light_model(
-                &model,
-                &self.camera_bind_group,
-                &self.light_bind_group,
-            );
-            render_pass.set_pipeline(&self.render_pipeline);
-            
-            render_pass.draw_model(
-                &model,
-                &self.camera_bind_group,
-                &self.light_bind_group,
-            );
-
-        }
-
-        self.queue.submit(std::iter::once(encoder.finish()));
-        output.present();
-
-        Ok(())
     }
     pub fn render_vertices(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.window.request_redraw();
