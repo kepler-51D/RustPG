@@ -96,6 +96,7 @@ impl ApplicationHandler<State> for App {
                 self.last_render_time = now;
                 current_state.update(dt);
                 //current_state.render_model(&current_state.obj_model);
+                // current_state.render_chunk_manager();
                 current_state.render_vertices();
                 //current_state.render_vertices();
                 //      self.world_manager.as_mut().unwrap().render_world(current_state);

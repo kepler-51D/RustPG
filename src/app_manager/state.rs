@@ -1,8 +1,8 @@
 use std::{f32::consts::PI, sync::Arc};
 use RustPG::vec_to_buffer;
-use glam::{Mat4, Quat, Vec3, Vec4};
+use glam::{IVec3, Mat4, Quat, Vec3, Vec4};
 use wgpu::{BindGroupLayout, LoadOpDontCare, RenderPipeline, util::DeviceExt};
-use crate::{advanced_rendering::{instance::{Instance,InstanceRaw}, lighting::LightUniform, model::{DrawModel, Model}}, app_manager::{camera::CameraUniform, camera_controller::{CameraController}, render_pipeline::create_render_pipeline}};
+use crate::{advanced_rendering::{instance::{Instance,InstanceRaw}, lighting::LightUniform, model::{DrawModel, Model}}, app_manager::{camera::CameraUniform, camera_controller::CameraController, render_pipeline::create_render_pipeline}, voxels::{chunk::{BlockData, BlockID, CHUNKSIZE}, chunk_manager::ChunkManager}};
 use winit::{
     event::{ElementState, KeyEvent, MouseButton, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{KeyCode, PhysicalKey}, window::Window
 };
@@ -39,6 +39,8 @@ pub struct State {
     pub light_buffer: wgpu::Buffer,
     pub light_bind_group: wgpu::BindGroup,
     pub light_render_pipeline: RenderPipeline,
+
+    pub chunk_manager: ChunkManager,
 }
 impl State {
     pub fn update(&mut self, dt: instant::Duration) {
@@ -290,8 +292,12 @@ impl State {
         surface.configure(&device, &config);
         let _ = window.set_cursor_grab(winit::window::CursorGrabMode::Locked);
         window.set_cursor_visible(false);
-
+        
+        let mut chunk_manager: ChunkManager = ChunkManager::new(&device, &config);
+        chunk_manager.add_chunk(IVec3::ZERO,[[[BlockID::Stone; CHUNKSIZE]; CHUNKSIZE]; CHUNKSIZE]);
+        chunk_manager.gen_mesh(&device,IVec3::ZERO);
         Ok(Self {
+            chunk_manager,
             texture_bind_group_layout,
             camera_buffer,
             camera_bind_group,
@@ -363,6 +369,9 @@ impl State {
             (KeyCode::Escape, true) => event_loop.exit(),
             _ => {}
         }
+    }
+    pub fn render_chunk_manager(&mut self) {
+        self.chunk_manager.render_world(self);
     }
     pub fn render_vertices(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.window.request_redraw();

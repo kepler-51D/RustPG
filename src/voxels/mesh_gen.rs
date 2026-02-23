@@ -1,4 +1,5 @@
 use glam::{IVec3, UVec3, Vec3};
+use wgpu::{Buffer, Device, util::DeviceExt};
 use std::array::from_fn;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -56,20 +57,23 @@ impl VoxelMesh {
         Self {
             global_offset: Vec3::ZERO,
             offset_buffer,
+            
         }
     }
     pub fn get_side(&self, direction: Direction) -> VoxelMeshSide {
         VoxelMeshSide {
+            // buffer: self.offset_buffer_cache[direction as usize].clone(),
             direction,
             main_offset: self.global_offset,
-            offset_buffer: self.offset_buffer[direction as usize].clone(), // note: inefficient but
-                                                                           // i dont care
+            offset_buffer: self.offset_buffer[direction as usize].clone(),
+            // note: inefficient but
+            // i dont care
         }
     }
 }
 
 impl ChunkManager {
-    pub fn gen_mesh(&self, chunk_index: IVec3) -> VoxelMesh {
+    pub fn gen_mesh(&mut self, device: &Device, chunk_index: IVec3) {
         let mut mesh: VoxelMesh = VoxelMesh::new();
         for x in 0..CHUNKSIZE {
             for y in 0..CHUNKSIZE {
@@ -91,6 +95,15 @@ impl ChunkManager {
                 }
             }
         }
-        todo!()
+        let buffers: [Buffer; 6] = std::array::from_fn(|index| {
+            device.create_buffer_init(
+                &wgpu::util::BufferInitDescriptor {
+                    label: Some(&format!("Instance Buffer {}", index)),
+                    contents: bytemuck::cast_slice(&mesh.offset_buffer[index]),
+                    usage: wgpu::BufferUsages::UNIFORM,
+                }
+            )
+        });
+        self.mesh_pool.insert(chunk_index, (mesh,buffers));
     }
 }
