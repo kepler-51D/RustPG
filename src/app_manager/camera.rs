@@ -9,7 +9,7 @@ pub struct CameraUniform {
 }
 impl CameraUniform {
     pub fn update_view_proj(&mut self, camera: &camera::Camera, projection: &camera::Projection) {
-        self.pos = camera.position.to_homogeneous().into();
-        self.matrix = (projection.calc_matrix() * camera.calc_matrix()).into();
+        self.pos = camera.position.to_homogeneous();
+        self.matrix = (projection.calc_matrix() * camera.calc_matrix());
     }
 }

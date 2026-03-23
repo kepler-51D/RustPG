@@ -63,7 +63,12 @@ impl ApplicationHandler<State> for App {
                     .camera_controller
                     .handle_mouse(delta.0, delta.1);
             }
-            _ => {}
+            DeviceEvent::Added => {},
+            DeviceEvent::Removed => {},
+            DeviceEvent::MouseWheel { delta } => {},
+            DeviceEvent::Motion { axis, value } => {},
+            DeviceEvent::Button { button, state } => {},
+            DeviceEvent::Key(raw_key_event) => {},
         }
         // let _ = current_state.window.set_cursor_position(LogicalPosition::new(100.0f32,100.0f32));
     }

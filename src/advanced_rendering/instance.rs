@@ -12,7 +12,7 @@ impl Instance {
     pub const NUM_INSTANCES_PER_ROW: u32 = 10;
     pub const INSTANCE_DISPLACEMENT: Vec3 = Vec3::new(Instance::NUM_INSTANCES_PER_ROW as f32 * 0.5, 0.0, Instance::NUM_INSTANCES_PER_ROW as f32 * 0.5);
 
-    pub fn to_raw(&self) -> InstanceRaw {
+    pub fn into_raw(&self) -> InstanceRaw {
         InstanceRaw {
             model: (Mat4::from_translation(self.position) * Mat4::from_quat(self.rotation)).to_cols_array_2d(),
             normal_transform: Mat3::from_quat(self.rotation).to_cols_array_2d(),

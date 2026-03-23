@@ -5,8 +5,7 @@
     */
 
     // doing rotations at compile time would save a bunch of multiplying at compile time
-    // however would mean 24 extra bytes stored.
-    // in hindsight this is insignificiant
+    // however would mean 24 extra bytes stored and i cant be bothered to do matrix maths right now
     const UP_QUAD = array<vec3<f32>,4>(
         vec3<f32>(-0.5, 0.5, -0.5),
         vec3<f32>(0.5, 0.5, -0.5),

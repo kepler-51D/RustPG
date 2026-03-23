@@ -153,13 +153,13 @@ impl Model {
                     let v1 = vertices[c[1] as usize];
                     let v2 = vertices[c[2] as usize];
 
-                    let pos0: Vec3 = v0.pos.into();
-                    let pos1: Vec3 = v1.pos.into();
-                    let pos2: Vec3 = v2.pos.into();
+                    let pos0: Vec3 = v0.pos;
+                    let pos1: Vec3 = v1.pos;
+                    let pos2: Vec3 = v2.pos;
 
-                    let uv0: Vec2 = v0.texture_coords.into();
-                    let uv1: Vec2 = v1.texture_coords.into();
-                    let uv2: Vec2 = v2.texture_coords.into();
+                    let uv0: Vec2 = v0.texture_coords;
+                    let uv1: Vec2 = v1.texture_coords;
+                    let uv2: Vec2 = v2.texture_coords;
 
                     // Calculate the edges of the triangle
                     let delta_pos1 = pos1 - pos0;
@@ -184,17 +184,17 @@ impl Model {
 
                     // We'll use the same tangent/bitangent for each vertex in the triangle
                     vertices[c[0] as usize].tangent =
-                        (tangent + Vec3::from(vertices[c[0] as usize].tangent)).into();
+                        (tangent + vertices[c[0] as usize].tangent);
                     vertices[c[1] as usize].tangent =
-                        (tangent + Vec3::from(vertices[c[1] as usize].tangent)).into();
+                        (tangent + vertices[c[1] as usize].tangent);
                     vertices[c[2] as usize].tangent =
-                        (tangent + Vec3::from(vertices[c[2] as usize].tangent)).into();
+                        (tangent + vertices[c[2] as usize].tangent);
                     vertices[c[0] as usize].bitangent =
-                        (bitangent + Vec3::from(vertices[c[0] as usize].bitangent)).into();
+                        (bitangent + vertices[c[0] as usize].bitangent);
                     vertices[c[1] as usize].bitangent =
-                        (bitangent + Vec3::from(vertices[c[1] as usize].bitangent)).into();
+                        (bitangent + vertices[c[1] as usize].bitangent);
                     vertices[c[2] as usize].bitangent =
-                        (bitangent + Vec3::from(vertices[c[2] as usize].bitangent)).into();
+                        (bitangent + vertices[c[2] as usize].bitangent);
 
                     // Used to average the tangents/bitangents
                     triangles_included[c[0] as usize] += 1;
@@ -205,8 +205,8 @@ impl Model {
                 for (i, n) in triangles_included.into_iter().enumerate() {
                     let denom = 1.0 / n as f32;
                     let v = &mut vertices[i];
-                    v.tangent = (Vec3::from(v.tangent) * denom).into();
-                    v.bitangent = (Vec3::from(v.bitangent) * denom).into();
+                    v.tangent *= denom;
+                    v.bitangent *= denom;
                 }
 
                 let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

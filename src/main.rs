@@ -5,6 +5,7 @@ mod app_manager;
 mod entities;
 mod v3;
 mod voxels;
+mod buffer_logic;
 // mod dual_contouring;
 
 use winit::event_loop::EventLoop;

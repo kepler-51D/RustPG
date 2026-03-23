@@ -9,7 +9,7 @@ use crate::{
 }};
 use glam::{IVec3, Mat4, UVec3, Vec3, Vec4};
 use slotmap::SlotMap;
-use wgpu::{BindGroup, Buffer, Device, RenderPipeline, SurfaceConfiguration, TextureFormat, naga::FastHashMap, util::DeviceExt};
+use wgpu::{BindGroup, Buffer, CurrentSurfaceTexture, Device, RenderPipeline, SurfaceConfiguration, TextureFormat, naga::FastHashMap, util::DeviceExt};
 
 pub const MAPSIZE: usize = 16 * 16 * 16;
 
@@ -107,7 +107,7 @@ impl ChunkManager {
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Voxel Pipeline Layout"),
                 bind_group_layouts: &[
-                    &voxel_bind_group_layout
+                    Some(&voxel_bind_group_layout)
                 ],
                 immediate_size: 0,
             });
@@ -150,7 +150,30 @@ impl ChunkManager {
     }
 
     pub fn render_world(&self, state: &State) {
-        let output = state.surface.get_current_texture().unwrap();
+        let output = match state.surface.get_current_texture() {
+            CurrentSurfaceTexture::Success(val) => {
+                val
+            },
+            CurrentSurfaceTexture::Lost => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Occluded => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Outdated => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Suboptimal(val) => {
+                val
+            },
+            CurrentSurfaceTexture::Timeout => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Validation => {
+                todo!()
+            }
+        };
+        // let output = state.surface.get_current_texture();
         let view = output.texture.create_view(&Default::default());
         let mut encoder = state.device.create_command_encoder(&Default::default());
 

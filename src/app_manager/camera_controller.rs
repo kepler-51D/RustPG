@@ -119,10 +119,6 @@ impl CameraController {
         self.rotate_vertical = 0.0;
 
         // Keep the camera's angle from going too high/low.
-        if camera.pitch < -(FRAC_PI_2) {
-            camera.pitch = -(FRAC_PI_2);
-        } else if camera.pitch > (FRAC_PI_2) {
-            camera.pitch = FRAC_PI_2;
-        }
+        camera.pitch = camera.pitch.clamp(-(FRAC_PI_2), FRAC_PI_2);
     }
 }

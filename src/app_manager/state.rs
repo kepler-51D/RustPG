@@ -1,7 +1,7 @@
 use std::{f32::consts::PI, sync::Arc};
-use RustPG::vec_to_buffer;
+use crate::buffer_logic::vec_to_buffer;
 use glam::{IVec3, Mat4, Quat, Vec3, Vec4};
-use wgpu::{BindGroupLayout, LoadOpDontCare, RenderPipeline, util::DeviceExt};
+use wgpu::{BackendOptions, BindGroupLayout, CurrentSurfaceTexture, InstanceFlags, LoadOpDontCare, MemoryBudgetThresholds, RenderPipeline, util::DeviceExt, wgt::WgpuHasDisplayHandle};
 use crate::{advanced_rendering::{instance::{Instance,InstanceRaw}, lighting::LightUniform, model::{DrawModel, Model}}, app_manager::{camera::CameraUniform, camera_controller::CameraController, render_pipeline::create_render_pipeline}, voxels::{chunk::{BlockData, BlockID, CHUNKSIZE}, chunk_manager::ChunkManager}};
 use winit::{
     event::{ElementState, KeyEvent, MouseButton, WindowEvent}, event_loop::ActiveEventLoop, keyboard::{KeyCode, PhysicalKey}, window::Window
@@ -58,9 +58,14 @@ impl State {
     pub async fn new(window: Arc<Window>) -> anyhow::Result<State> {
         let size = window.inner_size();
 
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
-            ..Default::default()
+            flags: InstanceFlags::default(),
+            memory_budget_thresholds: MemoryBudgetThresholds::default(),
+            backend_options: BackendOptions::default(),
+            // display: Some(Box::new(dyn WgpuHasDisplayHandle::default())),
+            display: None,
+            
         });
 
         let surface = instance.create_surface(window.clone()).unwrap();
@@ -217,7 +222,7 @@ impl State {
         let light_render_pipeline = {
             let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Light Pipeline Layout"),
-                bind_group_layouts: &[&camera_bind_group_layout, &light_bind_group_layout],
+                bind_group_layouts: &[Some(&camera_bind_group_layout), Some(&light_bind_group_layout)],
                 immediate_size: 0,
                 // push_constant_ranges: &[],
 
@@ -244,9 +249,9 @@ impl State {
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
                 bind_group_layouts: &[
-                    &camera_bind_group_layout,
-                    &texture_bind_group_layout,
-                    &light_bind_group_layout,
+                    Some(&camera_bind_group_layout),
+                    Some(&texture_bind_group_layout),
+                    Some(&light_bind_group_layout),
                 ],
                 immediate_size: 0,
                 // push_constant_ranges: &[],
@@ -274,7 +279,7 @@ impl State {
                 }
             })
         }).collect::<Vec<_>>();
-        let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
+        let instance_data = instances.iter().map(Instance::into_raw).collect::<Vec<_>>();
         let instance_buffer = device.create_buffer_init(
             &wgpu::util::BufferInitDescriptor {
                 label: Some("Instance Buffer"),
@@ -367,20 +372,43 @@ impl State {
     pub fn handle_key(&self, event_loop: &ActiveEventLoop, code: KeyCode, is_pressed: bool) {
         match (code, is_pressed) {
             (KeyCode::Escape, true) => event_loop.exit(),
+            (KeyCode::Backspace, true) => {}
             _ => {}
         }
     }
     pub fn render_chunk_manager(&mut self) {
         self.chunk_manager.render_world(self);
     }
-    pub fn render_vertices(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub fn render_vertices(&mut self) -> Result<(), wgpu::Error> {
         self.window.request_redraw();
 
         if !self.is_surface_configured {
             return Ok(());
         }
             
-        let output = self.surface.get_current_texture()?;
+        let output = match self.surface.get_current_texture() {
+            CurrentSurfaceTexture::Success(val) => {
+                val
+            },
+            CurrentSurfaceTexture::Lost => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Occluded => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Outdated => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Suboptimal(val) => {
+                val
+            },
+            CurrentSurfaceTexture::Timeout => {
+                todo!()
+            },
+            CurrentSurfaceTexture::Validation => {
+                todo!()
+            }
+        };
         let view = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Render Encoder"),
